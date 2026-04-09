@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creator Portfolio Builder</title>
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/modern-saas.css">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
+</head>
+
+<body>
+
+    <!-- ===== NAVBAR (coming next) ===== -->
+    <header class="navbar">
+    <div class="nav-container">
+        <h2 class="logo">Creator Portfolio</h2>
+
+    <nav id="nav-links" class="nav-links">
+        <a href="#login">Login</a> 
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#projects">Projects</a>
+        <a href="#contact">Contact</a>
+    </nav>
+    </div>
+</header>
+
+<!-- ===== LOGIN SECTION ===== -->
+<section id="login" class="builder">
+    <div class="builder-container">
+
+        <h2 class="section-title">Login</h2>
+
+        <form id="login-form" class="builder-panel">
+
+            <div class="form-row">
+                <input type="email" id="login-email" placeholder="Enter your email" required>
+                <input type="password" id="login-password" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="btn-primary">Login</button>
+
+        </form>
+
+    </div>
+</section>
+
+<!-- ===== PORTFOLIO BUILDER ===== -->
+<section class="builder">
+    <div class="builder-container">
+
+        <h2 class="section-title">Build Your Portfolio</h2>
+
+        <form id="builder-form">
+            <div class="builder-panel">
+                <!-- Name & Title Group -->
+                <div class="builder-group">
+                    <h3 class="group-title">👤 Personal Info</h3>
+                    <div class="form-row">
+                        <input type="text" id="builder-name" placeholder="Your Name">
+                        <input type="text" id="builder-title" placeholder="Your Title (e.g., Web Developer)">
+                    </div>
+                </div>
+
+                <!-- Skills Group -->
+                <div class="builder-group">
+                    <h3 class="group-title">⭐ Skills</h3>
+                    <div class="skills-builder">
+                        <div class="skills-input-row">
+                            <input type="text" id="skill-input" placeholder="Add a skill (e.g., React)">
+                            <button type="button" id="add-skill-btn" class="btn-secondary">Add Skill</button>
+                        </div>
+                        <div id="skills-preview" class="skills-preview"></div>
+                    </div>
+                </div>
+
+                <!-- Projects Group -->
+                <div class="builder-group">
+                    <h3 class="group-title">📁 Projects</h3>
+                    <div class="project-builder">
+                        <div class="form-row">
+                            <input type="text" id="project-title" placeholder="Project Title">
+                            <input type="text" id="project-desc" placeholder="Project Description">
+                        </div>
+                        <input type="text" id="project-image" placeholder="Image URL (optional)">
+                        <button type="button" id="add-project-btn" class="btn-secondary">Add Project</button>
+                        <div id="project-preview" class="project-preview"></div>
+                    </div>
+                </div>
+
+                <!-- Template Group -->
+                <div class="builder-group">
+                    <h3 class="group-title">🎨 Template</h3>
+                    <div class="template-selector">
+                        <div class="template-grid">
+                            <div class="template-card active" data-template="modern">
+                                <div class="template-preview modern-preview"></div>
+                                <div class="template-label">Modern</div>
+                            </div>
+                            <div class="template-card" data-template="minimal">
+                                <div class="template-preview minimal-preview"></div>
+                                <div class="template-label">Minimal</div>
+                            </div>
+                            <div class="template-card" data-template="creative">
+                                <div class="template-preview creative-preview"></div>
+                                <div class="template-label">Creative</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Group -->
+                <div class="builder-group">
+                    <h3 class="group-title">🖼️ Profile Image</h3>
+                    <div class="image-upload">
+                        <label for="profile-upload">Upload Profile Image</label>
+                        <input type="file" id="profile-upload" accept="image/*">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary generate-btn">✨ Generate Portfolio</button>
+            </div>
+        </form>
+
+    </div>
+</section>
+
+    <!-- ===== HERO SECTION (coming next) ===== -->
+     <div id="portfolio-container" class="portfolio modern">
+
+   <main>
+
+    <!-- ===== HERO ===== -->
+    <section id="home" class="hero">
+        <div class="hero-container">
+
+            <div class="hero-text">
+                <h1>Hello, I'm <span id="creator-name" class="highlight">Creator</span> 🚀</h1>
+                <p id="creator-title" class="hero-subtitle">
+                I build modern web experiences and creative digital products.
+            </p>
+                <button class="cta-btn">View My Work</button>
+            </div>
+
+            <div class="hero-image">
+                <img id="hero-profile-img" src="assets/images/profile.jpg" alt="profile">
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ===== ABOUT ===== -->
+    <section id="about" class="about">
+        <div class="about-container">
+
+            <h2 class="section-title">About Me</h2>
+
+            <p class="about-text">
+                I am a passionate creator focused on building modern, responsive,
+                and user-friendly web applications. I love turning ideas into
+                beautiful digital experiences.
+            </p>
+
+            <div id="about-skills" class="skills">
+                <span class="skill-chip">HTML</span>
+                <span class="skill-chip">CSS</span>
+                <span class="skill-chip">JavaScript</span>
+                <span class="skill-chip">FastAPI</span>
+                <span class="skill-chip">SQL</span>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ===== PROJECTS ===== -->
+    <section id="projects" class="projects">
+        <div class="projects-container">
+
+            <h2 class="section-title">My Projects</h2>
+
+            <div id="projects-grid" class="projects-grid">
+
+                <div class="project-card">
+                    <img src="https://picsum.photos/400/250?random=1" alt="project">
+                    <h3>Portfolio Builder</h3>
+                    <p>A dynamic portfolio generator built with FastAPI.</p>
+                </div>
+
+                <div class="project-card">
+                    <img src="https://picsum.photos/400/250?random=2" alt="project">
+                    <h3>AI Chat App</h3>
+                    <p>Real-time AI chat application with modern UI.</p>
+                </div>
+
+                <div class="project-card">
+                    <img src="https://picsum.photos/400/250?random=3" alt="project">
+                    <h3>Task Manager</h3>
+                    <p>Productivity app for managing daily tasks.</p>
+                </div>
+
+            </div>
+
+        </div>
+        <button id="download-btn" class="cta-btn download-btn">
+        Download Portfolio
+        </button>
+    </section>
+    
+
+</main>
+    <!-- ===== CONTACT SECTION ===== -->
+<section id="contact" class="contact">
+    <div class="contact-container">
+
+        <h2 class="section-title">Contact Me</h2>
+
+        <form id="contact-form" class="contact-form">
+
+            <div class="form-group">
+    <input type="text" id="name" name="name" placeholder="Your Name">
+    <div class="error-message" id="name-error"></div>
+</div>
+
+            <div class="form-group">
+    <input type="email" id="email" name="email" placeholder="Your Email">
+    <div class="error-message" id="email-error"></div>
+</div>
+
+            <div class="form-group">
+    <textarea id="message" name="message" rows="5" placeholder="Your Message"></textarea>
+    <div class="error-message" id="message-error"></div>
+</div>
+            <button type="submit" class="cta-btn">Send Message</button>
+
+        </form>
+
+        <p id="form-status"></p>
+
+    </div>
+</section>
+<script src="assets/js/main.js"></script>
+
+</body>
+</html>
