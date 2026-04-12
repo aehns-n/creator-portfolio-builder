@@ -25,3 +25,6 @@ def get_db():
         yield db
     finally:
         db.close()
+
+SQLALCHEMY_DATABASE_URL = "sqlite:///./portfolio.db"
+connect_args={"check_same_thread": False}
