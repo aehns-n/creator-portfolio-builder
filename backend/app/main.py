@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app .database import engine, get_db
-from . import models, schemas
+from app import models, schemas
 from app.security import hash_password, verify_password
 from app.auth import get_current_user, create_access_token
 
