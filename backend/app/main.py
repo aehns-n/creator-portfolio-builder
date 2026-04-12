@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 
-from .database import engine, get_db
+from app .database import engine, get_db
 from . import models, schemas
-from .security import hash_password, verify_password
-from .auth import get_current_user, create_access_token
+from app.security import hash_password, verify_password
+from app.auth import get_current_user, create_access_token
 
 from pydantic import BaseModel, EmailStr
 from typing import List, Dict
