@@ -467,4 +467,183 @@ document.querySelector(".cta-btn")?.addEventListener("click", ()=>{
 document.getElementById("projects").scrollIntoView({
 behavior:"smooth"
 });
+});// 🔥 BASE URL (CHANGE HERE ONLY)
+const BASE_URL = "https://creator-portfolio-builder.onrender.com";
+
+
+// ===== CONTACT FORM =====
+const form = document.getElementById("contact-form");
+const statusText = document.getElementById("form-status");
+
+if (form) {
+form.addEventListener("submit", async function (e) {
+e.preventDefault();
+
+const name = document.getElementById("name");
+const email = document.getElementById("email");
+const message = document.getElementById("message");
+
+let isValid = true;
+
+if(name.value.trim()==="") isValid=false;
+if(!email.value.includes("@")) isValid=false;
+if(message.value.trim().length<10) isValid=false;
+
+if(!isValid) return;
+
+try{
+const response = await fetch(`${BASE_URL}/contact`,{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({
+name:name.value,
+email:email.value,
+message:message.value
+}),
+});
+
+const data = await response.json();
+statusText.textContent = data.message || "Message sent!";
+statusText.style.color = "green";
+
+}catch(err){
+statusText.textContent="Server error ⚠️";
+statusText.style.color="red";
+}
+});
+}
+
+
+// ===== BUILDER =====
+const builderForm=document.getElementById("builder-form");
+const builderName=document.getElementById("builder-name");
+const builderTitle=document.getElementById("builder-title");
+
+const heroName=document.getElementById("creator-name");
+const heroTitle=document.getElementById("creator-title");
+
+builderName?.addEventListener("input",()=>{
+heroName.textContent= builderName.value || "Creator";
+});
+
+builderTitle?.addEventListener("input",()=>{
+heroTitle.textContent= builderTitle.value || "Web Developer";
+});
+
+
+// ===== SKILLS =====
+let skillsList=[];
+document.getElementById("add-skill-btn")?.addEventListener("click",()=>{
+const val=document.getElementById("skill-input").value.trim();
+if(!val) return;
+
+skillsList.push(val);
+
+const chip=document.createElement("span");
+chip.textContent=val;
+document.getElementById("skills-preview").appendChild(chip);
+});
+
+
+// ===== PROJECTS =====
+let projectList=[];
+
+document.getElementById("add-project-btn")?.addEventListener("click",()=>{
+const title=document.getElementById("project-title").value;
+const desc=document.getElementById("project-desc").value;
+
+if(!title || !desc) return;
+
+projectList.push({title,desc});
+
+const card=document.createElement("div");
+card.innerHTML=`<h3>${title}</h3><p>${desc}</p>`;
+document.getElementById("project-preview").appendChild(card);
+});
+
+
+// ===== BUILDER SUBMIT =====
+builderForm?.addEventListener("submit", async (e)=>{
+e.preventDefault();
+
+const token = localStorage.getItem("token");
+
+await fetch(`${BASE_URL}/save-portfolio`, {
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"Authorization":"Bearer " + token
+},
+body:JSON.stringify({
+name:builderName.value,
+title:builderTitle.value,
+skills:skillsList,
+projects:projectList
+})
+});
+});
+
+
+// ===== LOGIN =====
+const loginForm = document.getElementById("login-form");
+
+if (loginForm) {
+loginForm.addEventListener("submit", async function(e){
+e.preventDefault();
+
+const email = document.getElementById("login-email").value;
+const password = document.getElementById("login-password").value;
+
+const formData = new URLSearchParams();
+formData.append("username", email);
+formData.append("password", password);
+
+const res = await fetch(`${BASE_URL}/login`, {
+method:"POST",
+headers:{ "Content-Type":"application/x-www-form-urlencoded" },
+body:formData
+});
+
+const data = await res.json();
+
+if(res.ok){
+localStorage.setItem("token", data.access_token);
+alert("Login success ✅");
+window.location.href="index.html";
+}else{
+alert("Login failed ❌");
+}
+});
+}
+
+
+// ===== LOAD PORTFOLIO =====
+async function loadPortfolio(){
+const token = localStorage.getItem("token");
+if(!token) return;
+
+const res = await fetch(`${BASE_URL}/my-portfolio`,{
+headers:{ "Authorization":"Bearer " + token }
+});
+
+const data = await res.json();
+
+document.getElementById("creator-name").textContent = data.name;
+}
+
+
+// ===== LOGOUT =====
+function logout(){
+localStorage.removeItem("token");
+location.reload();
+}
+
+
+// ===== AUTO LOAD =====
+window.addEventListener("load", ()=>{
+const token = localStorage.getItem("token");
+
+if(token){
+loadPortfolio();
+}
 });
