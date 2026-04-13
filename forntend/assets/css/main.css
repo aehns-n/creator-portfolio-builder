@@ -445,6 +445,45 @@ body {
 .delete-project-btn:hover {
     background: #dc2626;
 }
+
+.btn-secondary.navbar-btn {
+    margin-left: 1rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.875rem;
+}
+
+#logoutBtn {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+}
+
+#logoutBtn:hover {
+    background: rgba(239, 68, 68, 0.4);
+    border-color: #ef4444;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.hidden-auth {
+    display: none !important;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top: 2px solid #38bdf8;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 0.5rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 .project-card {
     background: #020617;
     border: 1px solid #1e293b;

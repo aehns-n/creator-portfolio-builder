@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Creator Portfolio Builder</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/modern-saas.css">
+    <style>
+        /* Login-specific glassmorphism styles */
+        .login-hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #020617 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .login-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 80%, rgba(56,189,248,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(16,185,129,0.1) 0%, transparent 50%);
+            z-index: 1;
+        }
+        .login-card {
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+            border-radius: 20px;
+            padding: 3rem 2.5rem;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 2;
+            animation: slideUp 0.8s ease-out;
+        }
+        .login-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .login-logo h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #38bdf8, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+        .login-form .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        .login-form input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: rgba(2, 6, 23, 0.8);
+            border: 1px solid rgba(51, 65, 85, 0.8);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .login-form input:focus {
+            outline: none;
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+            background: rgba(2, 6, 23, 1);
+        }
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            min-height: 1.25rem;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+        .login-btn.loading {
+            opacity: 0.8;
+            cursor: not-allowed;
+        }
+        .login-btn.loading::after {
+            content: ' ⏳';
+            animation: spin 1s linear infinite;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        .back-link a {
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link a:hover {
+            color: #38bdf8;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-hero">
+        <div class="login-card">
+            <div class="login-logo">
+                <h1>Creator Portfolio</h1>
+                <p style="color: #94a3b8; margin-top: 0.5rem;">Sign in to access your dashboard</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                    <div id="emailError" class="error-message"></div>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                    <div id="passwordError" class="error-message"></div>
+                </div>
+                <div id="generalError" class="error-message"></div>
+                <button type="submit" class="btn-primary login-btn" id="loginBtn">
+                    Sign In
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = 'https://creator-portfolio-builder.onrender.com';
+        
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('loginBtn');
+            const generalError = document.getElementById('generalError');
+            
+            // Reset errors
+            document.getElementById('emailError').textContent = '';
+            document.getElementById('passwordError').textContent = '';
+            generalError.textContent = '';
+            
+            // Validation
+            if (!email.includes('@')) {
+                document.getElementById('emailError').textContent = 'Please enter a valid email';
+                return;
+            }
+            if (password.length < 6) {
+                document.getElementById('passwordError').textContent = 'Password must be at least 6 characters';
+                return;
+            }
+            
+            // Loading state
+            btn.classList.add('loading');
+            btn.disabled = true;
+            btn.textContent = 'Signing In';
+            
+            try {
+                const formData = new URLSearchParams();
+                formData.append('username', email);
+                formData.append('password', password);
+                
+                const res = await fetch(`${BASE_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                });
+                
+                const data = await res.json();
+                console.log('Login response:', data); // Debug log
+                
+                if (res.ok) {
+                    localStorage.setItem('token', data.access_token);
+                    console.log('Token stored:', data.access_token); // Debug
+                    // Smooth redirect
+                    document.body.style.opacity = '0';
+                    document.body.style.transition = 'opacity 0.3s ease';
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 300);
+                } else {
+                    console.error('Login error:', data.detail);
+                    generalError.textContent = data.detail === 'Invalid credentials' ? 'Invalid credentials' : 'Server error, please try again.';
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                generalError.textContent = 'Server error, please try again.';
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
+            }
+        });
+    </script>
+</body>
+</html>
+

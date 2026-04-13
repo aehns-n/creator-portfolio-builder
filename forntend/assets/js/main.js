@@ -216,55 +216,46 @@ link.click();
 
 
 // ===== LOGIN =====
-const loginForm=document.getElementById("login-form");
+// Remove fallback login form handler - use dedicated login.html
+// const loginForm = ... (commented out)
 
-loginForm?.addEventListener("submit",async(e)=>{
-e.preventDefault();
 
-const email=document.getElementById("login-email").value;
-const password=document.getElementById("login-password").value;
-
-const formData=new URLSearchParams();
-formData.append("username",email);
-formData.append("password",password);
-
-const res=await fetch(`${BASE_URL}/login`,{
-method:"POST",
-headers:{ "Content-Type":"application/x-www-form-urlencoded" },
-body:formData
-});
-
-const data=await res.json();
-
-if(res.ok){
-localStorage.setItem("token",data.access_token);
-alert("Login success");
-location.reload();
-}else{
-alert("Login failed");
+// ===== AUTH UTILS & INIT =====
+function isAuthenticated() {
+  return !!localStorage.getItem('token');
 }
-});
 
+function initAuth() {
+  if (isAuthenticated()) {
+    document.getElementById('logoutBtn').style.display = 'inline-block';
+    document.querySelector('#nav-links a[href="#login"]').style.display = 'none';
+    loadPortfolio().catch(console.error);
+  } else {
+    document.getElementById('logoutBtn').style.display = 'none';
+    document.querySelector('#nav-links a[href="#login"]').style.display = 'inline-block';
+  }
+}
 
 // ===== LOAD =====
-const token=localStorage.getItem("token");
-if(token){
-loadPortfolio();
+async function loadPortfolio() {
+  const token = localStorage.getItem('token');
+  const res = await fetch(`${BASE_URL}/my-portfolio`, {
+    headers: { 'Authorization': 'Bearer ' + token }
+  });
+  const data = await res.json();
+  document.getElementById('creator-name').textContent = data.name || 'Creator';
 }
 
-async function loadPortfolio(){
-const res=await fetch(`${BASE_URL}/my-portfolio`,{
-headers:{ "Authorization":"Bearer "+token }
+// ===== LOGOUT HANDLER =====
+document.getElementById('logoutBtn')?.addEventListener('click', () => {
+  localStorage.removeItem('token');
+  document.body.style.opacity = '0';
+  setTimeout(() => {
+    window.location.href = 'login.html';
+  }, 300);
 });
-const data=await res.json();
-heroName.textContent=data.name;
-}
 
-
-// ===== LOGOUT =====
-window.logout=()=>{
-localStorage.removeItem("token");
-location.reload();
-};
+// Init auth
+initAuth();
 
 });

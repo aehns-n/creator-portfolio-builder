@@ -26,6 +26,7 @@
         <a href="#projects">Projects</a>
         <a href="#contact">Contact</a>
     </nav>
+    <button id="logoutBtn" class="btn-secondary" style="display: none; margin-left: 1rem;">Logout</button>
     </div>
 </header>
 
@@ -242,7 +243,24 @@
 
     </div>
 </section>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (!localStorage.getItem('token')) {
+    window.location.href = 'login.html';
+    return;
+  }
+  // Hide protected content initially
+  const portfolioContainer = document.getElementById('portfolio-container');
+  const builderSections = document.querySelectorAll('.builder:not(#login)');
+  portfolioContainer.style.display = 'none';
+  builderSections.forEach(sec => sec.style.display = 'none');
+  // Show after auth check
+  portfolioContainer.style.display = '';
+  builderSections.forEach(sec => sec.style.display = '');
+});
+</script>
 <script src="assets/js/main.js"></script>
 
 </body>
+
 </html>
