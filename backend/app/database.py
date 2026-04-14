@@ -5,7 +5,11 @@ from sqlalchemy.orm import sessionmaker
 
 DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///./portfolio.db')
 
-if DATABASE_URL.startswith('postgres'):
+# 🔥 FIX POSTGRES URL
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+if DATABASE_URL.startswith('postgresql'):
     engine = create_engine(DATABASE_URL)
 else:
     engine = create_engine(
