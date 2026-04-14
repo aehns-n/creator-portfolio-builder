@@ -1,195 +1,203 @@
-from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy.orm import Session
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import OAuth2PasswordRequestForm
+import traceback
 
-from app .database import engine, get_db
-from app import models, schemas
-from app.security import hash_password, verify_password
-from app.auth import get_current_user, create_access_token
+try:
+    from fastapi import FastAPI, Depends, HTTPException
+    from sqlalchemy.orm import Session
+    from fastapi.middleware.cors import CORSMiddleware
+    from fastapi.security import OAuth2PasswordRequestForm
 
-from pydantic import BaseModel, EmailStr
-from typing import List, Dict
+    # ✅ FIXED IMPORT (NO SPACE BUG)
+    from app.database import engine, get_db
+    from app import models, schemas
+    from app.security import hash_password, verify_password
+    from app.auth import get_current_user, create_access_token
 
-# ===== INIT =====
-import models
-models.Base.metadata.create_all(bind=engine)
+    from pydantic import BaseModel, EmailStr
+    from typing import List, Dict
 
-app = FastAPI()
+    # ===== INIT =====
+    models.Base.metadata.create_all(bind=engine)
 
-# ===== CORS =====
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+    app = FastAPI()
 
-# ===== HOME =====
-@app.get("/")
-def home():
-    return {"message": "Creator Portfolio Backend Running"}
-
-
-# ===== SIGNUP =====
-@app.post("/signup")
-def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
-
-    existing_user = db.query(models.User).filter(models.User.email == user.email).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-
-    new_user = models.User(
-        name=user.name,
-        email=user.email,
-        password=hash_password(user.password)
+    # ===== CORS =====
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return {"message": "User created successfully"}
-
-
-# ===== LOGIN (JWT) =====
-@app.post("/login")
-def login(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db)
-):
-
-    db_user = db.query(models.User).filter(models.User.email == form_data.username).first()
-
-    if not db_user:
-        raise HTTPException(status_code=400, detail="Invalid credentials")
-
-    if not verify_password(form_data.password, db_user.password):
-        raise HTTPException(status_code=400, detail="Invalid credentials")
-
-    access_token = create_access_token(data={"user_id": db_user.id})
-
-    return {
-        "access_token": access_token,
-        "token_type": "bearer"
-    }
+    # ===== HOME =====
+    @app.get("/")
+    def home():
+        return {"message": "Creator Portfolio Backend Running"}
 
 
-# ===== SKILLS (PROTECTED + FIXED) =====
-@app.post("/skills")
-def add_skill(
-    skill: schemas.SkillCreate,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
-):
+    # ===== SIGNUP =====
+    @app.post("/signup")
+    def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
-    skill_name = skill.name.lower().strip()
+        existing_user = db.query(models.User).filter(models.User.email == user.email).first()
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Email already registered")
 
-    # 🔥 DUPLICATE CHECK
-    existing_skill = db.query(models.Skill).filter(
-        models.Skill.name == skill_name,
-        models.Skill.user_id == current_user.id
-    ).first()
+        new_user = models.User(
+            name=user.name,
+            email=user.email,
+            password=hash_password(user.password)
+        )
 
-    if existing_skill:
-        raise HTTPException(status_code=400, detail="Skill already exists")
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
 
-    new_skill = models.Skill(
-        name=skill_name,
-        user_id=current_user.id
-    )
-
-    db.add(new_skill)
-    db.commit()
-    db.refresh(new_skill)
-
-    return {"message": f"Skill added for {current_user.name}"}
+        return {"message": "User created successfully"}
 
 
-# ===== PROJECTS (PROTECTED + OPTIONAL DUPLICATE FIX) =====
-@app.post("/projects")
-def add_project(
-    project: schemas.ProjectCreate,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
-):
+    # ===== LOGIN (JWT) =====
+    @app.post("/login")
+    def login(
+        form_data: OAuth2PasswordRequestForm = Depends(),
+        db: Session = Depends(get_db)
+    ):
 
-    # 🔥 DUPLICATE CHECK
-    existing_project = db.query(models.Project).filter(
-        models.Project.title == project.title,
-        models.Project.description == project.description,
-        models.Project.user_id == current_user.id
-    ).first()
+        db_user = db.query(models.User).filter(models.User.email == form_data.username).first()
 
-    if existing_project:
-        raise HTTPException(status_code=400, detail="Project already exists")
+        if not db_user:
+            raise HTTPException(status_code=400, detail="Invalid credentials")
 
-    new_project = models.Project(
-        title=project.title,
-        description=project.description,
-        tech_stack=project.tech_stack,
-        user_id=current_user.id
-    )
+        if not verify_password(form_data.password, db_user.password):
+            raise HTTPException(status_code=400, detail="Invalid credentials")
 
-    db.add(new_project)
-    db.commit()
-    db.refresh(new_project)
+        access_token = create_access_token(data={"user_id": db_user.id})
 
-    return {"message": f"Project added for {current_user.name}"}
-
-# ===== GET MY PORTFOLIO (JWT BASED) =====
-@app.get("/my-portfolio")
-def get_my_portfolio(
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
-):
-
-    skills = db.query(models.Skill).filter(models.Skill.user_id == current_user.id).all()
-    projects = db.query(models.Project).filter(models.Project.user_id == current_user.id).all()
-
-    return {
-        "name": current_user.name,
-        "skills": list(set([skill.name.capitalize() for skill in skills])),  # 🔥 remove duplicates + format
-        "projects": [
-            {
-                "title": project.title,
-                "description": project.description,
-                "tech": project.tech_stack
-            }
-            for project in projects
-        ]
-    }
+        return {
+            "access_token": access_token,
+            "token_type": "bearer"
+        }
 
 
-# ===== CONTACT =====
-class Contact(BaseModel):
-    name: str
-    email: EmailStr
-    message: str
+    # ===== SKILLS =====
+    @app.post("/skills")
+    def add_skill(
+        skill: schemas.SkillCreate,
+        db: Session = Depends(get_db),
+        current_user: models.User = Depends(get_current_user)
+    ):
+
+        skill_name = skill.name.lower().strip()
+
+        existing_skill = db.query(models.Skill).filter(
+            models.Skill.name == skill_name,
+            models.Skill.user_id == current_user.id
+        ).first()
+
+        if existing_skill:
+            raise HTTPException(status_code=400, detail="Skill already exists")
+
+        new_skill = models.Skill(
+            name=skill_name,
+            user_id=current_user.id
+        )
+
+        db.add(new_skill)
+        db.commit()
+        db.refresh(new_skill)
+
+        return {"message": f"Skill added for {current_user.name}"}
 
 
-@app.post("/contact")
-def contact(data: Contact):
-    return {
-        "message": f"Thanks {data.name}, message received!"
-    }
+    # ===== PROJECTS =====
+    @app.post("/projects")
+    def add_project(
+        project: schemas.ProjectCreate,
+        db: Session = Depends(get_db),
+        current_user: models.User = Depends(get_current_user)
+    ):
+
+        existing_project = db.query(models.Project).filter(
+            models.Project.title == project.title,
+            models.Project.description == project.description,
+            models.Project.user_id == current_user.id
+        ).first()
+
+        if existing_project:
+            raise HTTPException(status_code=400, detail="Project already exists")
+
+        new_project = models.Project(
+            title=project.title,
+            description=project.description,
+            tech_stack=project.tech_stack,
+            user_id=current_user.id
+        )
+
+        db.add(new_project)
+        db.commit()
+        db.refresh(new_project)
+
+        return {"message": f"Project added for {current_user.name}"}
 
 
-# ===== SAVE PORTFOLIO (PROTECTED) =====
-class Portfolio(BaseModel):
-    name: str
-    title: str
-    skills: List[str]
-    projects: List[Dict]
+    # ===== GET MY PORTFOLIO =====
+    @app.get("/my-portfolio")
+    def get_my_portfolio(
+        db: Session = Depends(get_db),
+        current_user: models.User = Depends(get_current_user)
+    ):
+
+        skills = db.query(models.Skill).filter(models.Skill.user_id == current_user.id).all()
+        projects = db.query(models.Project).filter(models.Project.user_id == current_user.id).all()
+
+        return {
+            "name": current_user.name,
+            "skills": list(set([skill.name.capitalize() for skill in skills])),
+            "projects": [
+                {
+                    "title": project.title,
+                    "description": project.description,
+                    "tech": project.tech_stack
+                }
+                for project in projects
+            ]
+        }
 
 
-@app.post("/save-portfolio")
-def save_portfolio(
-    data: Portfolio,
-    current_user: models.User = Depends(get_current_user)
-):
-    return {
-        "message": f"Portfolio saved for {current_user.name}",
-        "data": data
-    }
+    # ===== CONTACT =====
+    class Contact(BaseModel):
+        name: str
+        email: EmailStr
+        message: str
+
+
+    @app.post("/contact")
+    def contact(data: Contact):
+        return {
+            "message": f"Thanks {data.name}, message received!"
+        }
+
+
+    # ===== SAVE PORTFOLIO =====
+    class Portfolio(BaseModel):
+        name: str
+        title: str
+        skills: List[str]
+        projects: List[Dict]
+
+
+    @app.post("/save-portfolio")
+    def save_portfolio(
+        data: Portfolio,
+        current_user: models.User = Depends(get_current_user)
+    ):
+        return {
+            "message": f"Portfolio saved for {current_user.name}",
+            "data": data
+        }
+
+# 🔥 DEBUG (VERY IMPORTANT)
+except Exception as e:
+    print("🔥 STARTUP ERROR:", str(e))
+    print(traceback.format_exc())
+    raise e
