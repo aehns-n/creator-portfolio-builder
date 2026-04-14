@@ -8,16 +8,18 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL and DATABASE_URL.startswith("postgres"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://")
 
-if not DATABASE_URL:
-    DATABASE_URL = "sqlite:///./portfolio.db"
+if DATABASE_URL and "postgresql" in DATABASE_URL:
     engine = create_engine(
-        DATABASE_URL, connect_args={"check_same_thread": False}
+        DATABASE_URL,
+        connect_args={"sslmode": "require"}
     )
 else:
-    engine = create_engine(DATABASE_URL)
+    engine = create_engine(
+        "sqlite:///./portfolio.db",
+        connect_args={"check_same_thread": False}
+    )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 Base = declarative_base()
 
 def get_db():
