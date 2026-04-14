@@ -15,10 +15,11 @@ try:
     from pydantic import BaseModel, EmailStr
     from typing import List, Dict
 
-    # ===== INIT =====
-    models.Base.metadata.create_all(bind=engine)
-
     app = FastAPI()
+    
+    @app.on_event("startup")
+    def on_startup():
+      models.Base.metadata.create_all(bind=engine)
 
     # ===== CORS =====
     app.add_middleware(
