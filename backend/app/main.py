@@ -47,7 +47,7 @@ try:
         new_user = models.User(
             name=user.name,
             email=user.email,
-            password=hash_password(user.password)
+            password=user.password
         )
 
         db.add(new_user)
