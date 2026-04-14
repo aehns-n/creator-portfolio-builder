@@ -1,23 +1,20 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# SQLite database file
-DATABASE_URL = "sqlite:///./portfolio.db"
+DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///./portfolio.db')
 
-# Engine create karna
-engine = create_engine(
-    DATABASE_URL, connect_args={"check_same_thread": False}
-)
+if DATABASE_URL.startswith('postgres'):
+    engine = create_engine(DATABASE_URL)
+else:
+    engine = create_engine(
+        DATABASE_URL, connect_args={"check_same_thread": False}
+    )
 
-# Session create karna
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Base class for models
 Base = declarative_base()
-
-#function-opens database session
-from sqlalchemy.orm import Session
 
 def get_db():
     db = SessionLocal()
@@ -25,6 +22,3 @@ def get_db():
         yield db
     finally:
         db.close()
-
-SQLALCHEMY_DATABASE_URL = "sqlite:///./portfolio.db"
-connect_args={"check_same_thread": False}

@@ -12,6 +12,7 @@ from pydantic import BaseModel, EmailStr
 from typing import List, Dict
 
 # ===== INIT =====
+import models
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
