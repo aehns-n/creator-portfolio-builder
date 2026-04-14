@@ -14,12 +14,15 @@ try:
 
     from pydantic import BaseModel, EmailStr
     from typing import List, Dict
+   
+    from app import models
 
     app = FastAPI()
     
     @app.on_event("startup")
-    def on_startup():
-      models.Base.metadata.create_all(bind=engine)
+    def startup():
+        print("🔥 Creating tables...")
+        models.Base.metadata.create_all(bind=engine)
 
     # ===== CORS =====
     app.add_middleware(
@@ -40,44 +43,49 @@ try:
     @app.post("/signup")
     def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
+        print("🔥 Signup called")
+
         existing_user = db.query(models.User).filter(models.User.email == user.email).first()
-        if existing_user:
-            raise HTTPException(status_code=400, detail="Email already registered")
+
+        print("🔥 Query done")
 
         new_user = models.User(
             name=user.name,
             email=user.email,
-            password=hash_password(user.password)
+            password=user.password
         )
+
+        print("🔥 User object created")
 
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
 
+        print("🔥 User saved")
+
         return {"message": "User created successfully"}
 
+        # ===== LOGIN (JWT) =====
+        @app.post("/login")
+        def login(
+            form_data: OAuth2PasswordRequestForm = Depends(),
+            db: Session = Depends(get_db)
+        ):
 
-    # ===== LOGIN (JWT) =====
-    @app.post("/login")
-    def login(
-        form_data: OAuth2PasswordRequestForm = Depends(),
-        db: Session = Depends(get_db)
-    ):
+            db_user = db.query(models.User).filter(models.User.email == form_data.username).first()
 
-        db_user = db.query(models.User).filter(models.User.email == form_data.username).first()
+            if not db_user:
+                raise HTTPException(status_code=400, detail="Invalid credentials")
 
-        if not db_user:
-            raise HTTPException(status_code=400, detail="Invalid credentials")
+            if not verify_password(form_data.password, db_user.password):
+                raise HTTPException(status_code=400, detail="Invalid credentials")
 
-        if not verify_password(form_data.password, db_user.password):
-            raise HTTPException(status_code=400, detail="Invalid credentials")
+            access_token = create_access_token(data={"user_id": db_user.id})
 
-        access_token = create_access_token(data={"user_id": db_user.id})
-
-        return {
-            "access_token": access_token,
-            "token_type": "bearer"
-        }
+            return {
+                "access_token": access_token,
+                "token_type": "bearer"
+            }
 
 
     # ===== SKILLS =====
