@@ -11,9 +11,7 @@ from app.auth import get_current_user, create_access_token
 from pydantic import BaseModel, EmailStr
 from typing import List, Dict
 
-import os
-print("🔥 APP STARTING...")
-print("🔥 DATABASE_URL:", os.getenv("DATABASE_URL"))
+
 app = FastAPI()
 
 # ===== STARTUP =====
