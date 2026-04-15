@@ -10,15 +10,19 @@ from app.auth import get_current_user, create_access_token
 
 from pydantic import BaseModel, EmailStr
 from typing import List, Dict
-
+import traceback
 
 app = FastAPI()
 
 # ===== STARTUP =====
 @app.on_event("startup")
 def startup():
-    print("🔥 Creating tables...")
-    models.Base.metadata.create_all(bind=engine)
+    try:
+        print("🔥 Creating tables...")
+        models.Base.metadata.create_all(bind=engine)
+        print("✅ Tables created successfully")
+    except Exception as e:
+        print("❌ Error creating tables:", str(e))
 
 # ===== CORS =====
 app.add_middleware(
@@ -32,28 +36,33 @@ app.add_middleware(
 # ===== HOME =====
 @app.get("/")
 def home():
-    return {"message": "Creator Portfolio Backend Running"}
+    return {"message": "Creator Portfolio Backend Running 🚀"}
 
 # ===== SIGNUP =====
 @app.post("/signup")
 def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    try:
+        existing_user = db.query(models.User).filter(models.User.email == user.email).first()
 
-    existing_user = db.query(models.User).filter(models.User.email == user.email).first()
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Email already registered")
 
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        new_user = models.User(
+            name=user.name,
+            email=user.email,
+            password=hash_password(user.password)
+        )
 
-    new_user = models.User(
-        name=user.name,
-        email=user.email,
-        password=hash_password(user.password)   # ✅ FIXED
-    )
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
 
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+        return {"message": "User created successfully ✅"}
 
-    return {"message": "User created successfully"}
+    except Exception as e:
+        print("❌ SIGNUP ERROR:")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail="Signup failed")
 
 # ===== LOGIN =====
 @app.post("/login")
@@ -61,21 +70,26 @@ def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
+    try:
+        db_user = db.query(models.User).filter(models.User.email == form_data.username).first()
 
-    db_user = db.query(models.User).filter(models.User.email == form_data.username).first()
+        if not db_user:
+            raise HTTPException(status_code=400, detail="Invalid credentials")
 
-    if not db_user:
-        raise HTTPException(status_code=400, detail="Invalid credentials")
+        if not verify_password(form_data.password, db_user.password):
+            raise HTTPException(status_code=400, detail="Invalid credentials")
 
-    if not verify_password(form_data.password, db_user.password):
-        raise HTTPException(status_code=400, detail="Invalid credentials")
+        access_token = create_access_token(data={"user_id": db_user.id})
 
-    access_token = create_access_token(data={"user_id": db_user.id})
+        return {
+            "access_token": access_token,
+            "token_type": "bearer"
+        }
 
-    return {
-        "access_token": access_token,
-        "token_type": "bearer"
-    }
+    except Exception as e:
+        print("❌ LOGIN ERROR:")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail="Login failed")
 
 # ===== SKILLS =====
 @app.post("/skills")
@@ -84,27 +98,32 @@ def add_skill(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
+    try:
+        skill_name = skill.name.lower().strip()
 
-    skill_name = skill.name.lower().strip()
+        existing_skill = db.query(models.Skill).filter(
+            models.Skill.name == skill_name,
+            models.Skill.user_id == current_user.id
+        ).first()
 
-    existing_skill = db.query(models.Skill).filter(
-        models.Skill.name == skill_name,
-        models.Skill.user_id == current_user.id
-    ).first()
+        if existing_skill:
+            raise HTTPException(status_code=400, detail="Skill already exists")
 
-    if existing_skill:
-        raise HTTPException(status_code=400, detail="Skill already exists")
+        new_skill = models.Skill(
+            name=skill_name,
+            user_id=current_user.id
+        )
 
-    new_skill = models.Skill(
-        name=skill_name,
-        user_id=current_user.id
-    )
+        db.add(new_skill)
+        db.commit()
+        db.refresh(new_skill)
 
-    db.add(new_skill)
-    db.commit()
-    db.refresh(new_skill)
+        return {"message": f"Skill added for {current_user.name} ✅"}
 
-    return {"message": f"Skill added for {current_user.name}"}
+    except Exception as e:
+        print("❌ SKILL ERROR:")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail="Skill creation failed")
 
 # ===== PROJECTS =====
 @app.post("/projects")
@@ -113,28 +132,33 @@ def add_project(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
+    try:
+        existing_project = db.query(models.Project).filter(
+            models.Project.title == project.title,
+            models.Project.description == project.description,
+            models.Project.user_id == current_user.id
+        ).first()
 
-    existing_project = db.query(models.Project).filter(
-        models.Project.title == project.title,
-        models.Project.description == project.description,
-        models.Project.user_id == current_user.id
-    ).first()
+        if existing_project:
+            raise HTTPException(status_code=400, detail="Project already exists")
 
-    if existing_project:
-        raise HTTPException(status_code=400, detail="Project already exists")
+        new_project = models.Project(
+            title=project.title,
+            description=project.description,
+            tech_stack=project.tech_stack,
+            user_id=current_user.id
+        )
 
-    new_project = models.Project(
-        title=project.title,
-        description=project.description,
-        tech_stack=project.tech_stack,
-        user_id=current_user.id
-    )
+        db.add(new_project)
+        db.commit()
+        db.refresh(new_project)
 
-    db.add(new_project)
-    db.commit()
-    db.refresh(new_project)
+        return {"message": f"Project added for {current_user.name} ✅"}
 
-    return {"message": f"Project added for {current_user.name}"}
+    except Exception as e:
+        print("❌ PROJECT ERROR:")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail="Project creation failed")
 
 # ===== GET PORTFOLIO =====
 @app.get("/my-portfolio")
@@ -142,22 +166,27 @@ def get_my_portfolio(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
+    try:
+        skills = db.query(models.Skill).filter(models.Skill.user_id == current_user.id).all()
+        projects = db.query(models.Project).filter(models.Project.user_id == current_user.id).all()
 
-    skills = db.query(models.Skill).filter(models.Skill.user_id == current_user.id).all()
-    projects = db.query(models.Project).filter(models.Project.user_id == current_user.id).all()
+        return {
+            "name": current_user.name,
+            "skills": list(set([skill.name.capitalize() for skill in skills])),
+            "projects": [
+                {
+                    "title": project.title,
+                    "description": project.description,
+                    "tech": project.tech_stack
+                }
+                for project in projects
+            ]
+        }
 
-    return {
-        "name": current_user.name,
-        "skills": list(set([skill.name.capitalize() for skill in skills])),
-        "projects": [
-            {
-                "title": project.title,
-                "description": project.description,
-                "tech": project.tech_stack
-            }
-            for project in projects
-        ]
-    }
+    except Exception as e:
+        print("❌ PORTFOLIO ERROR:")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail="Portfolio fetch failed")
 
 # ===== CONTACT =====
 class Contact(BaseModel):
@@ -167,7 +196,7 @@ class Contact(BaseModel):
 
 @app.post("/contact")
 def contact(data: Contact):
-    return {"message": f"Thanks {data.name}, message received!"}
+    return {"message": f"Thanks {data.name}, message received! ✅"}
 
 # ===== SAVE PORTFOLIO =====
 class Portfolio(BaseModel):
@@ -182,6 +211,6 @@ def save_portfolio(
     current_user: models.User = Depends(get_current_user)
 ):
     return {
-        "message": f"Portfolio saved for {current_user.name}",
+        "message": f"Portfolio saved for {current_user.name} ✅",
         "data": data
     }
