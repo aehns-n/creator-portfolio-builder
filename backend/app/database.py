@@ -3,6 +3,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+print("🔥 CONNECTING TO DB...")
+
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if not DATABASE_URL:
