@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Creator Portfolio Builder</title>
+    <title>Sign Up - Creator Portfolio Builder</title>
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/modern-saas.css">
     <style>
-        /* Login-specific glassmorphism styles */
+        /* Signup-specific glassmorphism styles (same as login) */
         .login-hero {
             min-height: 100vh;
             display: flex;
@@ -124,26 +124,29 @@
         <div class="login-card">
             <div class="login-logo">
                 <h1>Creator Portfolio</h1>
-                <p style="color: #94a3b8; margin-top: 0.5rem;">Sign in to access your dashboard</p>
+                <p style="color: #94a3b8; margin-top: 0.5rem;">Create your account to get started</p>
             </div>
-            <form id="loginForm" class="login-form">
+            <form id="signupForm" class="login-form">
                 <div class="form-group">
-                    <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                    <input type="text" id="signupName" placeholder="Full Name" required>
+                    <div id="nameError" class="error-message"></div>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="signupEmail" placeholder="Enter your email" required>
                     <div id="emailError" class="error-message"></div>
                 </div>
                 <div class="form-group">
-                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                    <input type="password" id="signupPassword" placeholder="Create password" required>
                     <div id="passwordError" class="error-message"></div>
                 </div>
                 <div id="generalError" class="error-message"></div>
-                <button type="submit" class="btn-primary login-btn" id="loginBtn">
-                    Sign In
+                <button type="submit" class="btn-primary login-btn" id="signupBtn">
+                    Create Account
                 </button>
             </form>
-            
             <div class="back-link">
-                <span style="color: #94a3b8;">Don't have an account?</span> 
-                <a href="signup.html">Sign up</a>
+                <span style="color: #94a3b8;">Already have an account?</span> 
+                <a href="login.html">Sign in</a>
             </div>
         </div>
     </div>
@@ -151,20 +154,26 @@
     <script>
         const BASE_URL = 'https://creator-portfolio-builder.onrender.com';
         
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const btn = document.getElementById('loginBtn');
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const btn = document.getElementById('signupBtn');
             const generalError = document.getElementById('generalError');
             
             // Reset errors
+            document.getElementById('nameError').textContent = '';
             document.getElementById('emailError').textContent = '';
             document.getElementById('passwordError').textContent = '';
             generalError.textContent = '';
             
             // Validation
+            if (name.length < 2) {
+                document.getElementById('nameError').textContent = 'Name must be at least 2 characters';
+                return;
+            }
             if (!email.includes('@')) {
                 document.getElementById('emailError').textContent = 'Please enter a valid email';
                 return;
@@ -177,34 +186,27 @@
             // Loading state
             btn.classList.add('loading');
             btn.disabled = true;
-            btn.textContent = 'Signing In';
+            btn.textContent = 'Creating Account';
             
             try {
-                const formData = new URLSearchParams();
-                formData.append('username', email);
-                formData.append('password', password);
-                
-                const res = await fetch(`${BASE_URL}/login`, {
+                const res = await fetch(`${BASE_URL}/signup`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: formData
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
                 });
                 
                 const data = await res.json();
-                console.log('Login response:', data); // Debug log
                 
                 if (res.ok) {
-                    localStorage.setItem('token', data.access_token);
-                    console.log('Token stored:', data.access_token); // Debug
-                    // Smooth redirect
+                    // Success - redirect to login
                     document.body.style.opacity = '0';
                     document.body.style.transition = 'opacity 0.3s ease';
                     setTimeout(() => {
-                        window.location.href = 'index.html';
+                        window.location.href = 'login.html';
                     }, 300);
                 } else {
-                    console.error('Login error:', data.detail);
-                    generalError.textContent = data.detail === 'Invalid credentials' ? 'Invalid credentials' : 'Server error, please try again.';
+                    console.error('Signup error:', data.detail);
+                    generalError.textContent = data.detail || 'Signup failed. Please try again.';
                 }
             } catch (error) {
                 console.error('Network error:', error);
@@ -212,10 +214,9 @@
             } finally {
                 btn.classList.remove('loading');
                 btn.disabled = false;
-                btn.textContent = 'Login In';
+                btn.textContent = 'Create Account';
             }
         });
     </script>
 </body>
 </html>
-

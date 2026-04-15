@@ -226,13 +226,15 @@ function isAuthenticated() {
 }
 
 function initAuth() {
+  const loginLink = document.querySelector('#nav-links a[href="#login"]');
   if (isAuthenticated()) {
     document.getElementById('logoutBtn').style.display = 'inline-block';
-    document.querySelector('#nav-links a[href="#login"]').style.display = 'none';
+    loginLink.style.display = 'none';
     loadPortfolio().catch(console.error);
   } else {
     document.getElementById('logoutBtn').style.display = 'none';
-    document.querySelector('#nav-links a[href="#login"]').style.display = 'inline-block';
+    loginLink.style.display = 'inline-block';
+    loginLink.href = 'login.html';
   }
 }
 
