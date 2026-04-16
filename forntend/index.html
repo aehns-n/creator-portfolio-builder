@@ -35,24 +35,25 @@
 
 <!-- ===== PORTFOLIO BUILDER ===== -->
 <section class="builder">
-    <div class="builder-container">
+<div class="builder-container glass-card fade-in">
 
         <h2 class="section-title">Build Your Portfolio</h2>
 
         <form id="builder-form">
             <div class="builder-panel">
                 <!-- Name & Title Group -->
-                <div class="builder-group">
-                    <h3 class="group-title">👤 Personal Info</h3>
+                <div class="builder-group" data-icon="👤">
+                    <h3 class="group-title">Personal Info</h3>
                     <div class="form-row">
                         <input type="text" id="builder-name" placeholder="Your Name">
                         <input type="text" id="builder-title" placeholder="Your Title (e.g., Web Developer)">
                     </div>
                 </div>
 
+
                 <!-- Skills Group -->
-                <div class="builder-group">
-                    <h3 class="group-title">⭐ Skills</h3>
+                <div class="builder-group" data-icon="⭐">
+                    <h3 class="group-title">Skills</h3>
                     <div class="skills-builder">
                         <div class="skills-input-row">
                             <input type="text" id="skill-input" placeholder="Add a skill (e.g., React)">
@@ -61,6 +62,7 @@
                         <div id="skills-preview" class="skills-preview"></div>
                     </div>
                 </div>
+
 
                 <!-- Projects Group -->
                 <div class="builder-group">
@@ -80,17 +82,29 @@
                 <div class="builder-group">
                     <h3 class="group-title">🎨 Template</h3>
                     <div class="template-selector">
-                        <div class="template-grid">
+        <div class="template-grid">
                             <div class="template-card active" data-template="modern">
-                                <div class="template-preview modern-preview"></div>
+                                <div class="template-preview modern-preview">
+                                    <div class="preview-hero"></div>
+                                    <div class="preview-grid"></div>
+                                </div>
                                 <div class="template-label">Modern</div>
                             </div>
                             <div class="template-card" data-template="minimal">
-                                <div class="template-preview minimal-preview"></div>
+                                <div class="template-preview minimal-preview">
+                                    <div class="preview-text"></div>
+                                    <div class="preview-list"></div>
+                                </div>
                                 <div class="template-label">Minimal</div>
                             </div>
                             <div class="template-card" data-template="creative">
-                                <div class="template-preview creative-preview"></div>
+                                <div class="template-preview creative-preview">
+                                    <svg viewBox="0 0 100 100" class="creative-svg">
+                                        <circle cx="50" cy="50" r="30" fill="#38bdf8"/>
+                                        <circle cx="30" cy="30" r="10" fill="#60a5fa"/>
+                                        <circle cx="70" cy="70" r="15" fill="#3b82f6"/>
+                                    </svg>
+                                </div>
                                 <div class="template-label">Creative</div>
                             </div>
                         </div>
@@ -116,11 +130,11 @@
     <!-- ===== HERO SECTION (coming next) ===== -->
      <div id="portfolio-container" class="portfolio modern">
 
-   <main>
+   <main class="main-content" data-anim="stagger">
 
     <!-- ===== HERO ===== -->
-    <section id="home" class="hero">
-        <div class="hero-container">
+    <section id="home" class="hero fade-in-up" data-stagger="1">
+<div class="hero-container glass-card fade-in">
 
             <div class="hero-text">
                 <h1>Hello, I'm <span id="creator-name" class="highlight">Creator</span> 🚀</h1>
@@ -130,16 +144,19 @@
                 <button class="cta-btn">View My Work</button>
             </div>
 
-            <div class="hero-image">
-                <img id="hero-profile-img" src="assets/images/profile.jpg" alt="profile">
-            </div>
+                <div class="hero-image">
+                    <div class="profile-preview-container">
+                        <img id="hero-profile-img" src="assets/images/profile.jpg" alt="profile">
+                        <img id="live-profile-preview" src="assets/images/profile.jpg" alt="live preview" style="display: none;">
+                    </div>
+                </div>
 
         </div>
     </section>
 
     <!-- ===== ABOUT ===== -->
     <section id="about" class="about">
-        <div class="about-container">
+<div class="about-container glass-card fade-in">
 
             <h2 class="section-title">About Me</h2>
 
@@ -161,8 +178,8 @@
     </section>
 
     <!-- ===== PROJECTS ===== -->
-    <section id="projects" class="projects">
-        <div class="projects-container">
+    <section id="projects" class="projects fade-in-up" data-stagger="3">
+<div class="projects-container glass-card fade-in">
 
             <h2 class="section-title">My Projects</h2>
 
@@ -187,18 +204,19 @@
                 </div>
 
             </div>
-
+            <div style="text-align: center; margin-top: 30px;">
+                <button id="download-btn" class="cta-btn download-btn">
+                    Download Portfolio
+                </button>
+            </div>
         </div>
-        <button id="download-btn" class="cta-btn download-btn">
-        Download Portfolio
-        </button>
     </section>
     
 
 </main>
     <!-- ===== CONTACT SECTION ===== -->
 <section id="contact" class="contact">
-    <div class="contact-container">
+<div class="contact-container glass-card fade-in">
 
         <h2 class="section-title">Contact Me</h2>
 
