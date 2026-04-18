@@ -386,6 +386,19 @@ input:focus, textarea:focus {
   min-height: 3rem;
 }
 
+.creative .skills {
+display: flex;
+justify-content: center;
+align-items: center;
+flex-wrap: wrap;
+gap: 15px;
+}
+
+.creative .skill-chip {
+margin: 0 auto;
+}
+
+
 .skill-chip {
   background: var(--accent-gradient);
   color: white;
@@ -483,14 +496,30 @@ input:focus, textarea:focus {
   max-width: 1400px;
   margin: 0 auto;
   text-align: center;
+  overflow: hidden;
 }
+
+.creative .projects-container {
+  overflow: hidden;
+}
+
 
 .projects-grid {
   margin-top: 3rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  align-items: stretch;
 }
+.creative .projects-grid {
+display: grid !important;
+grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+gap: 30px;
+align-items: stretch;
+position: relative;
+z-index: 1;
+}
+
 
 .project-card {
   background: var(--bg-glass);
@@ -502,6 +531,18 @@ input:focus, textarea:focus {
   position: relative;
   overflow: hidden;
 }
+
+.creative .project-card {
+position: relative !important;
+overflow: hidden !important;
+border-radius: 20px;
+padding: 20px;
+background: rgba(255,255,255,0.05);
+backdrop-filter: blur(20px);
+z-index: 1;
+transform: none !important;
+}
+
 
 .project-card::before {
   content: '🚀';
@@ -522,9 +563,21 @@ input:focus, textarea:focus {
   transition: var(--transition-normal);
 }
 
-.project-card:hover img {
-  transform: scale(1.05);
+.creative .project-card img {
+width: 100% !important;
+height: 220px;
+object-fit: cover;
+display: block;
+border-radius: 12px;
+position: relative !important;
+transform: none !important;
 }
+
+
+.project-card:hover img {
+  transform: none !important;
+}
+
 
 .project-card h3 {
   font-family: 'Poppins', sans-serif;
@@ -542,11 +595,17 @@ input:focus, textarea:focus {
   line-height: 1.7;
 }
 
-.project-card:hover {
-  transform: translateY(-12px);
+.creative .project-card:hover {
+  transform: none !important;
   border-color: var(--border-glow);
   box-shadow: var(--shadow-lg);
 }
+
+.project-card:hover {
+  border-color: var(--border-glow);
+  box-shadow: var(--shadow-lg);
+}
+
 
 #download-btn {
   display: none !important;
