@@ -571,7 +571,6 @@ h2 { font-size: clamp(1.75rem, 4vw, 2.5rem); margin-bottom: 3rem; text-align: ce
 .project-card h3 { font-size: 1.3rem; font-weight: 600; margin-bottom: 0.75rem; color: #1a1a1a; }
 .project-card p { color: #666; line-height: 1.6; }
 .project-card:hover { box-shadow: 0 20px 40px rgba(0,0,0,0.1); transform: translateY(-4px); }
-footer { text-align: center; padding: 4rem 0 2rem; color: #666; font-size: 0.9rem; border-top: 1px solid #e5e5e5; }
 @media (max-width: 768px) { .hero { flex-direction: column; text-align: center; gap: 2rem; } .profile-img { width: 220px; height: 220px; } .projects-grid { grid-template-columns: 1fr; } }
         `;
 
@@ -641,10 +640,6 @@ document.querySelectorAll(".section").forEach(el => observer.observe(el));
       <h2>Featured Projects</h2>
       <div class="projects-grid">${projectsHTML}</div>
     </section>
-    
-    <footer style="text-align: center; padding: 3rem 0; color: var(--text-secondary); font-size: 0.9rem; border-top: 1px solid var(--glass-border);">
-      <p>&copy; ${new Date().getFullYear()} ${name}. Built with ❤️</p>
-    </footer>
   </div>
   <script>${observerJS}</script>
 </body>
